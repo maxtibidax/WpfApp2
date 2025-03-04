@@ -16,14 +16,30 @@ namespace WpfApp2
         private Tile[,] boardTiles = new Tile[gridSize, gridSize];
         private Random rand = new Random();
 
+
         public GameControl()
         {
             InitializeComponent();
-            this.Loaded += (s, e) => { Keyboard.Focus(this); }; // Более надёжный способ установки фокуса
+            this.Loaded += (s, e) => { Keyboard.Focus(this); };
+
+            // Играем музыку игры
+            GlobalMusicManager.PlayMusic(
+                "..\\..\\..\\music\\game.mp3",
+                true,
+                SettingsControl.MusicVolume
+            );
 
             // При старте игры создаём две плитки
             SpawnTile();
             SpawnTile();
+        }
+
+        private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
+        { 
+            
+
+            // Возврат к меню
+            ((MainWindow)Application.Current.MainWindow).MainContent.Content = new MenuControl();
         }
 
         private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -56,11 +72,7 @@ namespace WpfApp2
             e.Handled = true; // Предотвращаем дальнейшую обработку события
         }
 
-        private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
-        {
-            // Возврат к меню
-            ((MainWindow)Application.Current.MainWindow).MainContent.Content = new MenuControl();
-        }
+       
 
         #region Логика игры (перемещения, анимация, создание плиток и т.д.)
 
@@ -378,6 +390,7 @@ namespace WpfApp2
                         return false;
                 }
             }
+            GlobalMusicManager.Stop(); // Останавливаем музыку
             return true;
         }
 

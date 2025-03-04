@@ -8,6 +8,16 @@ namespace WpfApp2
         public MenuControl()
         {
             InitializeComponent();
+
+            // Останавливаем предыдущую музыку
+            GlobalMusicManager.Stop();
+
+            // Играем музыку меню
+            GlobalMusicManager.PlayMusic(
+                "..\\..\\..\\music\\menu.mp3",
+                true,
+                SettingsControl.MusicVolume
+            );
         }
 
         private void StartGame_Click(object sender, RoutedEventArgs e)
@@ -18,7 +28,8 @@ namespace WpfApp2
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Настройки - в разработке");
+            // Переход к экрану настроек
+            ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SettingsControl();
         }
 
         private void Statistics_Click(object sender, RoutedEventArgs e)
@@ -28,6 +39,7 @@ namespace WpfApp2
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
+            GlobalMusicManager.Stop(); // Останавливаем музыку перед выходом
             Application.Current.Shutdown();
         }
     }
