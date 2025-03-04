@@ -52,19 +52,19 @@ namespace WpfApp2
         private Tile[,] boardTiles;
         private Random rand = new Random();
         public static GameState LastGameState { get;  set; }
+        private int currentScore = 0;
+        private int highScore = 0;
 
         // Метод для сохранения состояния игры
         private void SaveGameState()
         {
-            // Создаем модель для сохранения
             var saveState = new GameStateModel
             {
                 GridSize = gridSize,
-                Score = CalculateScore(),
+                Score = currentScore,
                 TileValues = new int[gridSize, gridSize]
             };
 
-            // Заполняем значения плиток
             for (int r = 0; r < gridSize; r++)
             {
                 for (int c = 0; c < gridSize; c++)
@@ -73,7 +73,6 @@ namespace WpfApp2
                 }
             }
 
-            // Сохраняем в файл
             GameStateModel.SaveGame(saveState);
         }
 
@@ -101,28 +100,34 @@ namespace WpfApp2
             gridSize = SettingsControl.GridSize;
             boardTiles = new Tile[gridSize, gridSize];
 
+            // Загружаем текущий рекорд
+            highScore = GameStateModel.LoadHighScore();
+            HighScoreTextBlock.Text = highScore.ToString();
+
             if (continueGame)
             {
                 var savedState = GameStateModel.LoadGame();
                 if (savedState != null)
                 {
                     RestoreGameState(savedState);
+                    currentScore = savedState.Score;
+                    ScoreTextBlock.Text = currentScore.ToString();
+                    highScore = savedState.HighScore;
+                    HighScoreTextBlock.Text = highScore.ToString();
                 }
                 else
                 {
-                    // Если нет сохранения, начинаем новую игру
                     SpawnTile();
                     SpawnTile();
                 }
             }
             else
             {
-                // Очищаем предыдущее сохранение при новой игре
                 GameStateModel.DeleteSaveFile();
-
-                // Стандартная инициализация новой игры
                 SpawnTile();
                 SpawnTile();
+                currentScore = 0;
+                ScoreTextBlock.Text = "0";
             }
 
             GameCanvas.Width = GameCanvas.Height = gridSize * cellSize;
@@ -225,6 +230,10 @@ namespace WpfApp2
                             var target = boardTiles[row, newCol - 1];
                             target.Value *= 2;
                             target.Merged = true;
+                            currentScore += target.Value; // Добавляем очки
+                            ScoreTextBlock.Text = currentScore.ToString();
+                            // Обновляем рекорд если нужно
+                            UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, row, newCol - 1);
                             AnimateMerge(target);
                             RemoveTile(boardTiles[row, col]);
@@ -267,6 +276,10 @@ namespace WpfApp2
                             var target = boardTiles[row, newCol + 1];
                             target.Value *= 2;
                             target.Merged = true;
+                            currentScore += target.Value; // Добавляем очки
+                            ScoreTextBlock.Text = currentScore.ToString();
+                            // Обновляем рекорд если нужно
+                            UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, row, newCol + 1);
                             AnimateMerge(target);
                             RemoveTile(boardTiles[row, col]);
@@ -309,6 +322,10 @@ namespace WpfApp2
                             var target = boardTiles[newRow - 1, col];
                             target.Value *= 2;
                             target.Merged = true;
+                            currentScore += target.Value; // Добавляем очки
+                            ScoreTextBlock.Text = currentScore.ToString();
+                            // Обновляем рекорд если нужно
+                            UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, newRow - 1, col);
                             AnimateMerge(target);
                             RemoveTile(boardTiles[row, col]);
@@ -351,6 +368,10 @@ namespace WpfApp2
                             var target = boardTiles[newRow + 1, col];
                             target.Value *= 2;
                             target.Merged = true;
+                            currentScore += target.Value; // Добавляем очки
+                            ScoreTextBlock.Text = currentScore.ToString();
+                            // Обновляем рекорд если нужно
+                            UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, newRow + 1, col);
                             AnimateMerge(target);
                             RemoveTile(boardTiles[row, col]);
@@ -371,7 +392,15 @@ namespace WpfApp2
             ResetMergedFlags();
             return moved;
         }
-
+        private void UpdateHighScore()
+        {
+            if (currentScore > highScore)
+            {
+                highScore = currentScore;
+                HighScoreTextBlock.Text = highScore.ToString();
+                GameStateModel.SaveHighScore(highScore);
+            }
+        }
         private void AnimateTile(Tile tile, int oldRow, int oldCol, int newRow, int newCol)
         {
             double oldX = oldCol * cellSize;
@@ -519,6 +548,7 @@ namespace WpfApp2
                 }
             }
             GlobalMusicManager.Stop(); // Останавливаем музыку
+            GameStateModel.SaveHighScore(highScore); // Сохраняем рекорд
             return true;
         }
 
