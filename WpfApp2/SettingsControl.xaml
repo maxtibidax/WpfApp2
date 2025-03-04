@@ -21,6 +21,19 @@
                         ValueChanged="VolumeSlider_ValueChanged"/>
             </StackPanel>
 
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <TextBlock Text="Размер сетки:" 
+                           VerticalAlignment="Center" 
+                           Margin="0,0,10,0"/>
+                <ComboBox x:Name="GridSizeComboBox" 
+                          Width="200"
+                          SelectionChanged="GridSizeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="3x3" Tag="3"/>
+                    <ComboBoxItem Content="4x4" Tag="4" IsSelected="True"/>
+                    <ComboBoxItem Content="5x5" Tag="5"/>
+                </ComboBox>
+            </StackPanel>
+
             <Button Content="Вернуться в меню" 
                     Click="ReturnToMenu_Click" 
                     Width="200" 

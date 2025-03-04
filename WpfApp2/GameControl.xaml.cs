@@ -11,15 +11,20 @@ namespace WpfApp2
 {
     public partial class GameControl : UserControl
     {
-        private const int gridSize = 4;
-        private const int cellSize = 100;
-        private Tile[,] boardTiles = new Tile[gridSize, gridSize];
+        private int gridSize;
+        private const int cellSize = 80; // Уменьшил размер для поддержки разных сеток
+        private Tile[,] boardTiles;
         private Random rand = new Random();
-
 
         public GameControl()
         {
             InitializeComponent();
+            gridSize = SettingsControl.GridSize; // Динамический размер сетки
+            boardTiles = new Tile[gridSize, gridSize];
+
+            // Обновляем размер Canvas в зависимости от размера сетки
+            GameCanvas.Width = GameCanvas.Height = gridSize * cellSize;
+
             this.Loaded += (s, e) => { Keyboard.Focus(this); };
 
             // Играем музыку игры

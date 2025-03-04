@@ -8,33 +8,43 @@ namespace WpfApp2
     public partial class SettingsControl : UserControl
     {
         public static double MusicVolume { get; private set; } = 0.5; // Громкость по умолчанию
+        public static int GridSize { get; private set; } = 4; // Размер сетки по умолчанию
 
         public SettingsControl()
         {
             InitializeComponent();
 
-            // Загрузка сохраненной громкости
+            // Загрузка сохраненных настроек
             LoadSettings();
 
-            // Установка текущего значения слайдера
+            // Установка текущего значения слайдера и размера сетки
             VolumeSlider.Value = MusicVolume * 100;
+            GridSizeComboBox.SelectedItem = FindGridSizeComboBoxItem(GridSize);
+        }
+
+        private ComboBoxItem FindGridSizeComboBoxItem(int size)
+        {
+            foreach (ComboBoxItem item in GridSizeComboBox.Items)
+            {
+                if (item.Tag != null && int.Parse(item.Tag.ToString()) == size)
+                {
+                    return item;
+                }
+            }
+            return null;
         }
 
         private void LoadSettings()
         {
             try
             {
-                // Попытка загрузить громкость из настроек приложения
-                //MusicVolume = Properties.Settings.Default.MusicVolume;
-
-                //// Проверка диапазона
-                //if (MusicVolume < 0) MusicVolume = 0;
-                //if (MusicVolume > 1) MusicVolume = 1;
+                // Здесь можно добавить загрузку из постоянных настроек
+                // Пока используем значения по умолчанию
             }
             catch
             {
-                // Если не удалось загрузить - используем значение по умолчанию
                 MusicVolume = 0.5;
+                GridSize = 4;
             }
         }
 
@@ -42,9 +52,7 @@ namespace WpfApp2
         {
             try
             {
-                // Сохранение громкости в настройках приложения
-                //Properties.Settings.Default.MusicVolume = MusicVolume;
-                //Properties.Settings.Default.Save();
+                // Здесь можно добавить сохранение в постоянные настройки
             }
             catch (Exception ex)
             {
@@ -54,26 +62,30 @@ namespace WpfApp2
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            // Обновляем громкость при изменении слайдера
             if (VolumeSlider != null)
             {
                 MusicVolume = VolumeSlider.Value / 100;
                 SaveSettings();
-
-                // Обновляем громкость в текущем плеере, если он существует
                 UpdateMusicVolume();
+            }
+        }
+
+        private void GridSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (GridSizeComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                GridSize = int.Parse(selectedItem.Tag.ToString());
+                SaveSettings();
             }
         }
 
         private void UpdateMusicVolume()
         {
             // Логика обновления громкости для текущего музыкального плеера
-            // Это будет зависеть от вашей реализации MusicManager
         }
 
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
         {
-            // Возврат в главное меню
             ((MainWindow)Application.Current.MainWindow).MainContent.Content = new MenuControl();
         }
     }
