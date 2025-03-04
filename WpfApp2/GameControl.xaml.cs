@@ -6,37 +6,158 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Newtonsoft.Json;
 
 namespace WpfApp2
 {
+    public class GameState
+    {
+        public int GridSize { get; set; }
+        public Tile[,] BoardTiles { get; set; }
+        public int Score { get; set; }
+    }
+    public static class ArrayExtensions
+    {
+        public static Tile[,] сlone(this Tile[,] source)
+        {
+            int rows = source.GetLength(0);
+            int cols = source.GetLength(1);
+            Tile[,] clone = new Tile[rows, cols];
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    if (source[r, c] != null)
+                    {
+                        clone[r, c] = new Tile
+                        {
+                            Value = source[r, c].Value,
+                            Row = source[r, c].Row,
+                            Col = source[r, c].Col,
+                            Merged = source[r, c].Merged,
+                            UIElement = source[r, c].UIElement
+                        };
+                    }
+                }
+            }
+            return clone;
+        }
+    }
     public partial class GameControl : UserControl
     {
+
         private int gridSize;
         private const int cellSize = 80; // Уменьшил размер для поддержки разных сеток
         private Tile[,] boardTiles;
         private Random rand = new Random();
+        public static GameState LastGameState { get;  set; }
 
-        public GameControl()
+        // Метод для сохранения состояния игры
+        private void SaveGameState()
+        {
+            // Создаем модель для сохранения
+            var saveState = new GameStateModel
+            {
+                GridSize = gridSize,
+                Score = CalculateScore(),
+                TileValues = new int[gridSize, gridSize]
+            };
+
+            // Заполняем значения плиток
+            for (int r = 0; r < gridSize; r++)
+            {
+                for (int c = 0; c < gridSize; c++)
+                {
+                    saveState.TileValues[r, c] = boardTiles[r, c]?.Value ?? 0;
+                }
+            }
+
+            // Сохраняем в файл
+            GameStateModel.SaveGame(saveState);
+        }
+
+        // Метод для подсчета очков
+        private int CalculateScore()
+        {
+            int score = 0;
+            for (int r = 0; r < gridSize; r++)
+            {
+                for (int c = 0; c < gridSize; c++)
+                {
+                    if (boardTiles[r, c] != null)
+                    {
+                        score += boardTiles[r, c].Value;
+                    }
+                }
+            }
+            return score;
+        }
+
+        // Конструктор с опциональной загрузкой состояния
+        public GameControl(bool continueGame = false)
         {
             InitializeComponent();
-            gridSize = SettingsControl.GridSize; // Динамический размер сетки
+            gridSize = SettingsControl.GridSize;
             boardTiles = new Tile[gridSize, gridSize];
 
-            // Обновляем размер Canvas в зависимости от размера сетки
-            GameCanvas.Width = GameCanvas.Height = gridSize * cellSize;
+            if (continueGame)
+            {
+                var savedState = GameStateModel.LoadGame();
+                if (savedState != null)
+                {
+                    RestoreGameState(savedState);
+                }
+                else
+                {
+                    // Если нет сохранения, начинаем новую игру
+                    SpawnTile();
+                    SpawnTile();
+                }
+            }
+            else
+            {
+                // Очищаем предыдущее сохранение при новой игре
+                GameStateModel.DeleteSaveFile();
 
+                // Стандартная инициализация новой игры
+                SpawnTile();
+                SpawnTile();
+            }
+
+            GameCanvas.Width = GameCanvas.Height = gridSize * cellSize;
             this.Loaded += (s, e) => { Keyboard.Focus(this); };
 
-            // Играем музыку игры
             GlobalMusicManager.PlayMusic(
                 "..\\..\\..\\music\\game.mp3",
                 true,
                 SettingsControl.MusicVolume
             );
+        }
 
-            // При старте игры создаём две плитки
-            SpawnTile();
-            SpawnTile();
+
+        private void RestoreGameState(GameStateModel savedState)
+        {
+            gridSize = savedState.GridSize;
+            boardTiles = new Tile[gridSize, gridSize];
+
+            // Очищаем предыдущие элементы на Canvas
+            GameCanvas.Children.Clear();
+
+            // Восстанавливаем плитки
+            for (int r = 0; r < gridSize; r++)
+            {
+                for (int c = 0; c < gridSize; c++)
+                {
+                    int value = savedState.TileValues[r, c];
+                    if (value > 0)
+                    {
+                        Tile tile = CreateTile(value, r, c);
+                        boardTiles[r, c] = tile;
+                        GameCanvas.Children.Add(tile.UIElement);
+                    }
+                }
+            }
         }
 
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
@@ -69,15 +190,17 @@ namespace WpfApp2
             {
                 SpawnTile();
                 UpdateUI();
+                SaveGameState(); // Сохраняем состояние игры в файл
                 if (IsGameOver())
                 {
                     MessageBox.Show("Игра окончена!");
+                    GameStateModel.DeleteSaveFile(); // Удаляем файл сохранения при окончании игры
                 }
             }
-            e.Handled = true; // Предотвращаем дальнейшую обработку события
+            e.Handled = true;
         }
 
-       
+
 
         #region Логика игры (перемещения, анимация, создание плиток и т.д.)
 

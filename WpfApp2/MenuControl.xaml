@@ -5,6 +5,7 @@
     <Grid Background="LightGray">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" >
             <Button Content="Начать игру" Click="StartGame_Click" Width="150" Height="40" Margin="5"/>
+            <Button Content="Продолжить" x:Name="ContinueButton" Click="Continue_Click" Width="150" Height="40" Margin="5" IsEnabled="False"/>
             <Button Content="Настройки" Click="Settings_Click" Width="150" Height="40" Margin="5"/>
             <Button Content="Статистика" Click="Statistics_Click" Width="150" Height="40" Margin="5"/>
             <Button Content="Выход" Click="Exit_Click" Width="150" Height="40" Margin="5"/>

@@ -9,6 +9,9 @@ namespace WpfApp2
         {
             InitializeComponent();
 
+            // Проверяем, есть ли сохраненное состояние игры
+            ContinueButton.IsEnabled = GameStateModel.LoadGame() != null;
+
             // Останавливаем предыдущую музыку
             GlobalMusicManager.Stop();
 
@@ -24,6 +27,12 @@ namespace WpfApp2
         {
             // Переход к игровому экрану
             ((MainWindow)Application.Current.MainWindow).MainContent.Content = new GameControl();
+        }
+
+        private void Continue_Click(object sender, RoutedEventArgs e)
+        {
+            // Переход к игровому экрану с продолжением
+            ((MainWindow)Application.Current.MainWindow).MainContent.Content = new GameControl(true);
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e)
