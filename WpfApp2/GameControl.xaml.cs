@@ -465,7 +465,19 @@ namespace WpfApp2
             {
                 if (element is Border border && border.Child is TextBlock tb && border.Tag is Tile tile)
                 {
+                    // Обновляем текст
                     tb.Text = tile.Value.ToString();
+
+                    // Обновляем цвет фона
+                    Color backgroundColor = GetBackgroundColorForValue(tile.Value);
+                    border.Background = new SolidColorBrush(backgroundColor);
+
+                    // Обновляем цвет текста
+                    Color textColor = tile.Value <= 4 ? Colors.Black : Colors.White;
+                    tb.Foreground = new SolidColorBrush(textColor);
+
+                    // Обновляем размер шрифта
+                    tb.FontSize = tile.Value < 100 ? 24 : tile.Value < 1000 ? 20 : 16;
                 }
             }
         }
@@ -484,29 +496,79 @@ namespace WpfApp2
                 Col = col,
                 Merged = false
             };
+
+            // Цвет фона плитки в зависимости от значения
+            Color backgroundColor = GetBackgroundColorForValue(value);
+
+            // Цвет текста - темный для маленьких значений, светлый для больших
+            Color textColor = value <= 4 ? Colors.Black : Colors.White;
+
+            // Размер шрифта в зависимости от значения (для больших чисел шрифт уменьшается)
+            double fontSize = value < 100 ? 24 : value < 1000 ? 20 : 16;
+
             Border border = new Border
             {
                 Width = cellSize - 10,
                 Height = cellSize - 10,
                 CornerRadius = new CornerRadius(5),
-                Background = new SolidColorBrush(Colors.Orange),
+                Background = new SolidColorBrush(backgroundColor),
                 BorderBrush = new SolidColorBrush(Colors.Brown),
                 BorderThickness = new Thickness(2)
             };
+
             TextBlock tb = new TextBlock
             {
                 Text = value.ToString(),
-                FontSize = 24,
+                FontSize = fontSize,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = new SolidColorBrush(textColor)
             };
+
             border.Child = tb;
             border.Tag = tile;
             tile.UIElement = border;
             Canvas.SetLeft(border, col * cellSize);
             Canvas.SetTop(border, row * cellSize);
             return tile;
+        }
+
+        // Метод для определения цвета плитки в зависимости от значения
+        private Color GetBackgroundColorForValue(int value)
+        {
+            switch (value)
+            {
+                case 2:
+                    return Color.FromRgb(238, 228, 218); // Светло-бежевый
+                case 4:
+                    return Color.FromRgb(237, 224, 200); // Бежевый
+                case 8:
+                    return Color.FromRgb(242, 177, 121); // Светло-оранжевый
+                case 16:
+                    return Color.FromRgb(245, 149, 99);  // Оранжевый
+                case 32:
+                    return Color.FromRgb(246, 124, 95);  // Красно-оранжевый
+                case 64:
+                    return Color.FromRgb(246, 94, 59);   // Красный
+                case 128:
+                    return Color.FromRgb(237, 207, 114); // Светло-желтый
+                case 256:
+                    return Color.FromRgb(237, 204, 97);  // Желтый
+                case 512:
+                    return Color.FromRgb(237, 200, 80);  // Насыщенный желтый
+                case 1024:
+                    return Color.FromRgb(237, 197, 63);  // Золотой
+                case 2048:
+                    return Color.FromRgb(237, 194, 46);  // Насыщенный золотой
+                case 4096:
+                    return Color.FromRgb(60, 58, 50);    // Темно-серый
+                default:
+                    // Для значений больше 4096
+                    if (value > 4096)
+                        return Color.FromRgb(40, 40, 40); // Почти черный
+                    return Colors.Orange; // Значение по умолчанию
+            }
         }
 
         private void SpawnTile()
