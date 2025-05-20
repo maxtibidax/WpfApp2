@@ -55,7 +55,7 @@ namespace WpfApp2
         public static GameState LastGameState { get; set; }
         private int currentScore = 0;
         private int highScore = 0;
-        private int moveCount = 0; // Поле для подсчёта ходов
+        private int moveCount = 0;
 
         public GameControl(bool continueGame = false)
         {
@@ -63,7 +63,6 @@ namespace WpfApp2
             gridSize = SettingsControl.GridSize;
             boardTiles = new Tile[gridSize, gridSize];
 
-            // Загружаем текущий рекорд
             highScore = GameStateModel.LoadHighScore();
             HighScoreTextBlock.Text = highScore.ToString();
 
@@ -99,7 +98,7 @@ namespace WpfApp2
             GlobalMusicManager.PlayMusic(
                 "..\\..\\..\\music\\game.mp3",
                 true,
-                SettingsControl.MusicVolume
+                (float)SettingsControl.MusicVolume // Приведение double к float
             );
         }
 
@@ -144,10 +143,8 @@ namespace WpfApp2
             gridSize = savedState.GridSize;
             boardTiles = new Tile[gridSize, gridSize];
 
-            // Очищаем предыдущие элементы на Canvas
             GameCanvas.Children.Clear();
 
-            // Восстанавливаем плитки
             for (int r = 0; r < gridSize; r++)
             {
                 for (int c = 0; c < gridSize; c++)
@@ -188,13 +185,13 @@ namespace WpfApp2
             }
             if (moved)
             {
-                moveCount++; // Увеличиваем счётчик ходов
+                moveCount++;
                 SpawnTile();
                 UpdateUI();
                 SaveGameState();
                 if (IsGameOver())
                 {
-                    StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore); // Сохраняем статистику
+                    StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore);
                     MessageBox.Show("Игра окончена!");
                     GameStateModel.DeleteSaveFile();
                 }
@@ -585,7 +582,7 @@ namespace WpfApp2
                 }
             }
             GlobalMusicManager.Stop();
-            StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore); // Сохраняем статистику
+            StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore);
             GameStateModel.SaveHighScore(highScore);
             return true;
         }

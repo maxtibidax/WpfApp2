@@ -7,24 +7,27 @@ namespace WpfApp2
     [Serializable]
     public class StatisticsModel
     {
-        public int GamesPlayed { get; set; } // Количество сыгранных игр
-        public int HighScore { get; set; } // Лучший счёт
-        public int TotalMoves { get; set; } // Общее количество ходов
-        public long TotalScore { get; set; } // Суммарный счёт для вычисления среднего
+        public int GamesPlayed { get; set; }
+        public int HighScore { get; set; }
+        public int TotalMoves { get; set; }
+        public long TotalScore { get; set; }
 
-        private static string StatisticsFilePath => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "2048Game",
-            "statistics.json"
-        );
+        public static StatisticsModel GuestStats { get; private set; } = new StatisticsModel();
 
         public static void SaveStatistics(StatisticsModel stats)
         {
+            if (UserManager.CurrentUser == null)
+            {
+                GuestStats = stats;
+                return;
+            }
+
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(StatisticsFilePath));
+                string filePath = UserManager.CurrentUser.StatisticsFilePath;
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
                 string json = JsonConvert.SerializeObject(stats, Formatting.Indented);
-                File.WriteAllText(StatisticsFilePath, json);
+                File.WriteAllText(filePath, json);
             }
             catch (Exception ex)
             {
@@ -34,12 +37,18 @@ namespace WpfApp2
 
         public static StatisticsModel LoadStatistics()
         {
+            if (UserManager.CurrentUser == null)
+            {
+                return GuestStats;
+            }
+
             try
             {
-                if (File.Exists(StatisticsFilePath))
+                string filePath = UserManager.CurrentUser.StatisticsFilePath;
+                if (File.Exists(filePath))
                 {
-                    string json = File.ReadAllText(StatisticsFilePath);
-                    return JsonConvert.DeserializeObject<StatisticsModel>(json);
+                    string json = File.ReadAllText(filePath);
+                    return JsonConvert.DeserializeObject<StatisticsModel>(json) ?? new StatisticsModel();
                 }
             }
             catch (Exception ex)
@@ -57,6 +66,11 @@ namespace WpfApp2
             stats.TotalScore += score;
             stats.HighScore = Math.Max(stats.HighScore, highScore);
             SaveStatistics(stats);
+        }
+
+        public static void ClearGuestStats()
+        {
+            GuestStats = new StatisticsModel();
         }
     }
 }

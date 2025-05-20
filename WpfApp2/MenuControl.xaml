@@ -3,7 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="450" Width="450">
     <Grid Background="LightGray">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" >
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock x:Name="UserTextBlock" 
+                       Text="Гость" 
+                       FontSize="18" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,20"/>
             <Button Content="Начать игру" Click="StartGame_Click" Width="150" Height="40" Margin="5"/>
             <Button Content="Продолжить" x:Name="ContinueButton" Click="Continue_Click" Width="150" Height="40" Margin="5" IsEnabled="False"/>
             <Button Content="Настройки" Click="Settings_Click" Width="150" Height="40" Margin="5"/>

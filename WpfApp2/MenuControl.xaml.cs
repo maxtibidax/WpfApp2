@@ -5,15 +5,17 @@ namespace WpfApp2
 {
     public partial class MenuControl : UserControl
     {
-        public MenuControl() 
-        { 
-            InitializeComponent(); 
+        public MenuControl()
+        {
+            InitializeComponent();
             ContinueButton.IsEnabled = GameStateModel.LoadGame() != null;
-            GlobalMusicManager.Stop(); 
+            UserTextBlock.Text = UserManager.CurrentUser?.Username ?? "Гость";
+            GlobalMusicManager.Stop();
             GlobalMusicManager.PlayMusic(
-                "..\\..\\..\\music\\menu.mp3", 
-                true, 
-                SettingsControl.MusicVolume); 
+                "..\\..\\..\\music\\menu.mp3",
+                true,
+                (float)SettingsControl.MusicVolume // Приведение double к float
+            );
         }
 
         private void StartGame_Click(object sender, RoutedEventArgs e)
@@ -38,9 +40,17 @@ namespace WpfApp2
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            GlobalMusicManager.Stop();
-            Application.Current.Shutdown();
+            var stats = StatisticsModel.LoadStatistics();
+            if (UserManager.CurrentUser == null && (stats.GamesPlayed > 0 || stats.HighScore > 0))
+            {
+                ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SaveStatsPromptControl();
+            }
+            else
+            {
+                StatisticsModel.ClearGuestStats();
+                GlobalMusicManager.Stop();
+                Application.Current.Shutdown();
+            }
         }
     }
-
 }
