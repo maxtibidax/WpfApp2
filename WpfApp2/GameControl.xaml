@@ -16,7 +16,7 @@
         </StackPanel>
 
         <!-- Игровое поле -->
-        <Canvas Name="GameCanvas" Width="400" Height="400" Background="Beige" Margin="10,40,10,10"/>
+        <Canvas Name="GameCanvas" Width="400" Height="400" Background="#f2f5fe" Margin="10,40,10,10"/>
 
         <!-- Кнопка возврата в меню -->
         <Button Content="Вернуться в меню" Click="ReturnToMenu_Click" 

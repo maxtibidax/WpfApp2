@@ -16,6 +16,7 @@ namespace WpfApp2
         public Tile[,] BoardTiles { get; set; }
         public int Score { get; set; }
     }
+
     public static class ArrayExtensions
     {
         public static Tile[,] сlone(this Tile[,] source)
@@ -44,56 +45,18 @@ namespace WpfApp2
             return clone;
         }
     }
+
     public partial class GameControl : UserControl
     {
-
         private int gridSize;
-        private const int cellSize = 80; // Уменьшил размер для поддержки разных сеток
+        private const int cellSize = 80;
         private Tile[,] boardTiles;
         private Random rand = new Random();
-        public static GameState LastGameState { get;  set; }
+        public static GameState LastGameState { get; set; }
         private int currentScore = 0;
         private int highScore = 0;
+        private int moveCount = 0; // Поле для подсчёта ходов
 
-        // Метод для сохранения состояния игры
-        private void SaveGameState()
-        {
-            var saveState = new GameStateModel
-            {
-                GridSize = gridSize,
-                Score = currentScore,
-                TileValues = new int[gridSize, gridSize]
-            };
-
-            for (int r = 0; r < gridSize; r++)
-            {
-                for (int c = 0; c < gridSize; c++)
-                {
-                    saveState.TileValues[r, c] = boardTiles[r, c]?.Value ?? 0;
-                }
-            }
-
-            GameStateModel.SaveGame(saveState);
-        }
-
-        // Метод для подсчета очков
-        private int CalculateScore()
-        {
-            int score = 0;
-            for (int r = 0; r < gridSize; r++)
-            {
-                for (int c = 0; c < gridSize; c++)
-                {
-                    if (boardTiles[r, c] != null)
-                    {
-                        score += boardTiles[r, c].Value;
-                    }
-                }
-            }
-            return score;
-        }
-
-        // Конструктор с опциональной загрузкой состояния
         public GameControl(bool continueGame = false)
         {
             InitializeComponent();
@@ -140,6 +103,41 @@ namespace WpfApp2
             );
         }
 
+        private void SaveGameState()
+        {
+            var saveState = new GameStateModel
+            {
+                GridSize = gridSize,
+                Score = currentScore,
+                TileValues = new int[gridSize, gridSize]
+            };
+
+            for (int r = 0; r < gridSize; r++)
+            {
+                for (int c = 0; c < gridSize; c++)
+                {
+                    saveState.TileValues[r, c] = boardTiles[r, c]?.Value ?? 0;
+                }
+            }
+
+            GameStateModel.SaveGame(saveState);
+        }
+
+        private int CalculateScore()
+        {
+            int score = 0;
+            for (int r = 0; r < gridSize; r++)
+            {
+                for (int c = 0; c < gridSize; c++)
+                {
+                    if (boardTiles[r, c] != null)
+                    {
+                        score += boardTiles[r, c].Value;
+                    }
+                }
+            }
+            return score;
+        }
 
         private void RestoreGameState(GameStateModel savedState)
         {
@@ -166,10 +164,7 @@ namespace WpfApp2
         }
 
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
-        { 
-            
-
-            // Возврат к меню
+        {
             ((MainWindow)Application.Current.MainWindow).MainContent.Content = new MenuControl();
         }
 
@@ -193,21 +188,19 @@ namespace WpfApp2
             }
             if (moved)
             {
+                moveCount++; // Увеличиваем счётчик ходов
                 SpawnTile();
                 UpdateUI();
-                SaveGameState(); // Сохраняем состояние игры в файл
+                SaveGameState();
                 if (IsGameOver())
                 {
+                    StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore); // Сохраняем статистику
                     MessageBox.Show("Игра окончена!");
-                    GameStateModel.DeleteSaveFile(); // Удаляем файл сохранения при окончании игры
+                    GameStateModel.DeleteSaveFile();
                 }
             }
             e.Handled = true;
         }
-
-
-
-        #region Логика игры (перемещения, анимация, создание плиток и т.д.)
 
         private bool MoveLeft()
         {
@@ -230,9 +223,8 @@ namespace WpfApp2
                             var target = boardTiles[row, newCol - 1];
                             target.Value *= 2;
                             target.Merged = true;
-                            currentScore += target.Value; // Добавляем очки
+                            currentScore += target.Value;
                             ScoreTextBlock.Text = currentScore.ToString();
-                            // Обновляем рекорд если нужно
                             UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, row, newCol - 1);
                             AnimateMerge(target);
@@ -276,9 +268,8 @@ namespace WpfApp2
                             var target = boardTiles[row, newCol + 1];
                             target.Value *= 2;
                             target.Merged = true;
-                            currentScore += target.Value; // Добавляем очки
+                            currentScore += target.Value;
                             ScoreTextBlock.Text = currentScore.ToString();
-                            // Обновляем рекорд если нужно
                             UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, row, newCol + 1);
                             AnimateMerge(target);
@@ -322,9 +313,8 @@ namespace WpfApp2
                             var target = boardTiles[newRow - 1, col];
                             target.Value *= 2;
                             target.Merged = true;
-                            currentScore += target.Value; // Добавляем очки
+                            currentScore += target.Value;
                             ScoreTextBlock.Text = currentScore.ToString();
-                            // Обновляем рекорд если нужно
                             UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, newRow - 1, col);
                             AnimateMerge(target);
@@ -368,9 +358,8 @@ namespace WpfApp2
                             var target = boardTiles[newRow + 1, col];
                             target.Value *= 2;
                             target.Merged = true;
-                            currentScore += target.Value; // Добавляем очки
+                            currentScore += target.Value;
                             ScoreTextBlock.Text = currentScore.ToString();
-                            // Обновляем рекорд если нужно
                             UpdateHighScore();
                             AnimateTile(boardTiles[row, col], row, col, newRow + 1, col);
                             AnimateMerge(target);
@@ -392,6 +381,7 @@ namespace WpfApp2
             ResetMergedFlags();
             return moved;
         }
+
         private void UpdateHighScore()
         {
             if (currentScore > highScore)
@@ -401,6 +391,7 @@ namespace WpfApp2
                 GameStateModel.SaveHighScore(highScore);
             }
         }
+
         private void AnimateTile(Tile tile, int oldRow, int oldCol, int newRow, int newCol)
         {
             double oldX = oldCol * cellSize;
@@ -410,11 +401,9 @@ namespace WpfApp2
             double deltaX = newX - oldX;
             double deltaY = newY - oldY;
 
-            // Устанавливаем новую позицию на Canvas
             Canvas.SetLeft(tile.UIElement, newX);
             Canvas.SetTop(tile.UIElement, newY);
 
-            // Добавляем анимацию перемещения
             TranslateTransform tt = new TranslateTransform();
             tile.UIElement.RenderTransform = tt;
             Duration duration = new Duration(TimeSpan.FromMilliseconds(200));
@@ -465,18 +454,11 @@ namespace WpfApp2
             {
                 if (element is Border border && border.Child is TextBlock tb && border.Tag is Tile tile)
                 {
-                    // Обновляем текст
                     tb.Text = tile.Value.ToString();
-
-                    // Обновляем цвет фона
                     Color backgroundColor = GetBackgroundColorForValue(tile.Value);
                     border.Background = new SolidColorBrush(backgroundColor);
-
-                    // Обновляем цвет текста
                     Color textColor = tile.Value <= 4 ? Colors.Black : Colors.White;
                     tb.Foreground = new SolidColorBrush(textColor);
-
-                    // Обновляем размер шрифта
                     tb.FontSize = tile.Value < 100 ? 24 : tile.Value < 1000 ? 20 : 16;
                 }
             }
@@ -497,13 +479,8 @@ namespace WpfApp2
                 Merged = false
             };
 
-            // Цвет фона плитки в зависимости от значения
             Color backgroundColor = GetBackgroundColorForValue(value);
-
-            // Цвет текста - темный для маленьких значений, светлый для больших
             Color textColor = value <= 4 ? Colors.Black : Colors.White;
-
-            // Размер шрифта в зависимости от значения (для больших чисел шрифт уменьшается)
             double fontSize = value < 100 ? 24 : value < 1000 ? 20 : 16;
 
             Border border = new Border
@@ -534,40 +511,38 @@ namespace WpfApp2
             return tile;
         }
 
-        // Метод для определения цвета плитки в зависимости от значения
         private Color GetBackgroundColorForValue(int value)
         {
             switch (value)
             {
                 case 2:
-                    return Color.FromRgb(238, 228, 218); // Светло-бежевый
+                    return Color.FromRgb(238, 228, 218);
                 case 4:
-                    return Color.FromRgb(237, 224, 200); // Бежевый
+                    return Color.FromRgb(237, 224, 200);
                 case 8:
-                    return Color.FromRgb(242, 177, 121); // Светло-оранжевый
+                    return Color.FromRgb(242, 177, 121);
                 case 16:
-                    return Color.FromRgb(245, 149, 99);  // Оранжевый
+                    return Color.FromRgb(245, 149, 99);
                 case 32:
-                    return Color.FromRgb(246, 124, 95);  // Красно-оранжевый
+                    return Color.FromRgb(246, 124, 95);
                 case 64:
-                    return Color.FromRgb(246, 94, 59);   // Красный
+                    return Color.FromRgb(246, 94, 59);
                 case 128:
-                    return Color.FromRgb(237, 207, 114); // Светло-желтый
+                    return Color.FromRgb(237, 207, 114);
                 case 256:
-                    return Color.FromRgb(237, 204, 97);  // Желтый
+                    return Color.FromRgb(237, 204, 97);
                 case 512:
-                    return Color.FromRgb(237, 200, 80);  // Насыщенный желтый
+                    return Color.FromRgb(237, 200, 80);
                 case 1024:
-                    return Color.FromRgb(237, 197, 63);  // Золотой
+                    return Color.FromRgb(237, 197, 63);
                 case 2048:
-                    return Color.FromRgb(237, 194, 46);  // Насыщенный золотой
+                    return Color.FromRgb(237, 194, 46);
                 case 4096:
-                    return Color.FromRgb(60, 58, 50);    // Темно-серый
+                    return Color.FromRgb(60, 58, 50);
                 default:
-                    // Для значений больше 4096
                     if (value > 4096)
-                        return Color.FromRgb(40, 40, 40); // Почти черный
-                    return Colors.Orange; // Значение по умолчанию
+                        return Color.FromRgb(40, 40, 40);
+                    return Colors.Orange;
             }
         }
 
@@ -609,8 +584,9 @@ namespace WpfApp2
                         return false;
                 }
             }
-            GlobalMusicManager.Stop(); // Останавливаем музыку
-            GameStateModel.SaveHighScore(highScore); // Сохраняем рекорд
+            GlobalMusicManager.Stop();
+            StatisticsModel.UpdateStatistics(currentScore, moveCount, highScore); // Сохраняем статистику
+            GameStateModel.SaveHighScore(highScore);
             return true;
         }
 
@@ -625,17 +601,13 @@ namespace WpfApp2
                 }
             }
         }
-
-        #endregion
     }
 
-    // Класс плитки (можно вынести в отдельный файл)
     public class Tile
     {
         public int Value { get; set; }
         public int Row { get; set; }
         public int Col { get; set; }
-        // Флаг, чтобы не сливалась плитка дважды за один ход
         public bool Merged { get; set; } = false;
         public Border UIElement { get; set; }
     }
