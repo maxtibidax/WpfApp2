@@ -10,38 +10,55 @@ namespace WpfApp2
         public int GridSize { get; set; }
         public int[,] TileValues { get; set; }
         public int Score { get; set; }
-        public int HighScore { get; set; } // Новое свойство для лучшего результата
+        public int HighScore { get; set; }
 
-        // Статические методы для работы с файлом сохранения
-        private static string SaveFilePath => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "2048Game",
-            "gamesave.json"
-        );
+        private static GameStateModel GuestGameState { get; set; }
 
-        private static string HighScoreFilePath => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "2048Game",
-            "highscore.json"
-        );
+        private static string GetSaveFilePath()
+        {
+            if (UserManager.CurrentUser == null)
+            {
+                return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "2048Game",
+                    "gamesave_guest.json"
+                );
+            }
+            return UserManager.CurrentUser.GameSaveFilePath;
+        }
+
+        private static string GetHighScoreFilePath()
+        {
+            if (UserManager.CurrentUser == null)
+            {
+                return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "2048Game",
+                    "highscore_guest.json"
+                );
+            }
+            return UserManager.CurrentUser.HighScoreFilePath;
+        }
 
         public static void SaveGame(GameStateModel state)
         {
             try
             {
-                // Создаем директорию, если она не существует
-                Directory.CreateDirectory(Path.GetDirectoryName(SaveFilePath));
+                if (UserManager.CurrentUser == null)
+                {
+                    GuestGameState = state;
+                    return;
+                }
 
-                // Обновляем высший балл, если текущий больше
+                string saveFilePath = GetSaveFilePath();
+                Directory.CreateDirectory(Path.GetDirectoryName(saveFilePath));
+
                 int currentHighScore = LoadHighScore();
                 state.HighScore = Math.Max(currentHighScore, state.Score);
-
-                // Сохраняем высший балл
                 SaveHighScore(state.HighScore);
 
-                // Сериализуем и сохраняем состояние
                 string json = JsonConvert.SerializeObject(state, Formatting.Indented);
-                File.WriteAllText(SaveFilePath, json);
+                File.WriteAllText(saveFilePath, json);
             }
             catch (Exception ex)
             {
@@ -53,11 +70,17 @@ namespace WpfApp2
         {
             try
             {
-                if (File.Exists(SaveFilePath))
+                if (UserManager.CurrentUser == null)
                 {
-                    string json = File.ReadAllText(SaveFilePath);
+                    return GuestGameState;
+                }
+
+                string saveFilePath = GetSaveFilePath();
+                if (File.Exists(saveFilePath))
+                {
+                    string json = File.ReadAllText(saveFilePath);
                     var state = JsonConvert.DeserializeObject<GameStateModel>(json);
-                    state.HighScore = LoadHighScore(); // Загружаем текущий высший балл
+                    state.HighScore = LoadHighScore();
                     return state;
                 }
             }
@@ -72,9 +95,16 @@ namespace WpfApp2
         {
             try
             {
-                if (File.Exists(SaveFilePath))
+                if (UserManager.CurrentUser == null)
                 {
-                    File.Delete(SaveFilePath);
+                    GuestGameState = null;
+                    return;
+                }
+
+                string saveFilePath = GetSaveFilePath();
+                if (File.Exists(saveFilePath))
+                {
+                    File.Delete(saveFilePath);
                 }
             }
             catch (Exception ex)
@@ -83,13 +113,13 @@ namespace WpfApp2
             }
         }
 
-        // Новый метод для сохранения высшего балла
         public static void SaveHighScore(int highScore)
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(HighScoreFilePath));
-                File.WriteAllText(HighScoreFilePath, highScore.ToString());
+                string highScoreFilePath = GetHighScoreFilePath();
+                Directory.CreateDirectory(Path.GetDirectoryName(highScoreFilePath));
+                File.WriteAllText(highScoreFilePath, highScore.ToString());
             }
             catch (Exception ex)
             {
@@ -97,14 +127,14 @@ namespace WpfApp2
             }
         }
 
-        // Новый метод для загрузки высшего балла
         public static int LoadHighScore()
         {
             try
             {
-                if (File.Exists(HighScoreFilePath))
+                string highScoreFilePath = GetHighScoreFilePath();
+                if (File.Exists(highScoreFilePath))
                 {
-                    return int.Parse(File.ReadAllText(HighScoreFilePath));
+                    return int.Parse(File.ReadAllText(highScoreFilePath));
                 }
             }
             catch (Exception ex)

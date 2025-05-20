@@ -17,7 +17,6 @@
                         Width="200" 
                         Minimum="0" 
                         Maximum="100" 
-                        Value="50"
                         ValueChanged="VolumeSlider_ValueChanged"/>
             </StackPanel>
 
@@ -32,6 +31,44 @@
                     <ComboBoxItem Content="4x4" Tag="4" IsSelected="True"/>
                     <ComboBoxItem Content="5x5" Tag="5"/>
                 </ComboBox>
+            </StackPanel>
+
+            <TextBlock Text="Управление аккаунтом" 
+                       FontSize="18" 
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,10"/>
+            <StackPanel x:Name="AccountPanel" Margin="0,0,0,20">
+                <TextBlock x:Name="AccountStatusTextBlock" 
+                           Text="Гость" 
+                           HorizontalAlignment="Center" 
+                           Margin="0,0,0,10"/>
+                <Button x:Name="LoginButton" 
+                        Content="Войти" 
+                        Click="Login_Click" 
+                        Width="200" 
+                        Height="40" 
+                        Margin="0,0,0,5"/>
+                <Button x:Name="RegisterButton" 
+                        Content="Зарегистрироваться" 
+                        Click="Register_Click" 
+                        Width="200" 
+                        Height="40" 
+                        Margin="0,0,0,5"/>
+                <Button x:Name="LogoutButton" 
+                        Content="Выйти из аккаунта" 
+                        Click="Logout_Click" 
+                        Width="200" 
+                        Height="40" 
+                        Margin="0,0,0,5" 
+                        Visibility="Collapsed"/>
+                <Button x:Name="DeleteAccountButton" 
+                        Content="Удалить аккаунт" 
+                        Click="DeleteAccount_Click" 
+                        Width="200" 
+                        Height="40" 
+                        Margin="0,0,0,5" 
+                        Visibility="Collapsed"/>
             </StackPanel>
 
             <Button Content="Вернуться в меню" 

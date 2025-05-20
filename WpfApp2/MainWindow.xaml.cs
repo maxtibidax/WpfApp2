@@ -7,7 +7,6 @@ namespace WpfApp2
         public MainWindow()
         {
             InitializeComponent();
-            // Загружаем меню при запуске
             MainContent.Content = new MenuControl();
         }
     }
