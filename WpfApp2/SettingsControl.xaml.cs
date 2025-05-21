@@ -8,7 +8,7 @@ namespace WpfApp2
 {
     public partial class SettingsControl : UserControl
     {
-        public static double MusicVolume { get; private set; } = 0.5;
+        public static double MusicVolume { get; private set; } = 0.3;
         public static int GridSize { get; private set; } = 4;
 
         private static string SettingsFilePath => Path.Combine(
@@ -34,7 +34,7 @@ namespace WpfApp2
                     var settings = JsonConvert.DeserializeObject<SettingsData>(json);
                     if (settings != null)
                     {
-                        MusicVolume = settings.MusicVolume;
+                        MusicVolume = Math.Clamp(settings.MusicVolume, 0.0, 1.0);
                         GridSize = settings.GridSize;
                     }
                 }
@@ -84,7 +84,7 @@ namespace WpfApp2
         {
             if (VolumeSlider != null)
             {
-                MusicVolume = VolumeSlider.Value / 100;
+                MusicVolume = Math.Clamp(VolumeSlider.Value / 100.0, 0.0, 1.0);
                 SaveSettings();
                 GlobalMusicManager.SetVolume((float)MusicVolume);
             }
