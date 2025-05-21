@@ -83,8 +83,8 @@ namespace WpfApp2
 
                 waveOut = new WaveOutEvent();
                 waveOut.Init(loopStream);
-                waveOut.Volume = volume;
-                currentVolume = volume;
+                waveOut.Volume = Math.Clamp(volume, 0.0f, 1.0f);
+                currentVolume = Math.Clamp(volume, 0.0f, 1.0f);
                 waveOut.Play();
             }
             catch (Exception ex)
@@ -110,10 +110,10 @@ namespace WpfApp2
 
         public static void SetVolume(float volume)
         {
-            currentVolume = volume;
+            currentVolume = Math.Clamp(volume, 0.0f, 1.0f);
             if (waveOut != null)
             {
-                waveOut.Volume = volume;
+                waveOut.Volume = currentVolume;
             }
         }
     }

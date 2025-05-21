@@ -1,7 +1,72 @@
 ﻿<UserControl x:Class="WpfApp2.SettingsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="450" Width="450">
+             xmlns:local="clr-namespace:WpfApp2"
+             Height="570" Width="440">
+    <UserControl.Resources>
+        <local:ValueToWidthConverter x:Key="ValueToWidthConverter"/>
+        <Style TargetType="Slider" x:Key="CustomSliderStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="100"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Border x:Name="TrackBackground" 
+                                    Background="#FFBCADA0" 
+                                    Height="6" 
+                                    CornerRadius="3" 
+                                    VerticalAlignment="Center"
+                                    Margin="14,0,14,0"/>
+                            <Border x:Name="TrackFill" 
+                                    Background="#FFECE0C8" 
+                                    Height="6" 
+                                    CornerRadius="3" 
+                                    VerticalAlignment="Center"
+                                    Margin="14,0,14,0"
+                                    HorizontalAlignment="Left"
+                                    Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, Converter={StaticResource ValueToWidthConverter}}"/>
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb x:Name="Thumb">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse x:Name="ThumbEllipse" Width="12" Height="12" Fill="#FFECE0C8"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbEllipse" Property="Fill" Value="#FFF2B179"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter TargetName="ThumbEllipse" Property="Fill" Value="LightGray"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="TrackBackground" Property="Background" Value="Gray"/>
+                                <Setter TargetName="TrackFill" Property="Background" Value="LightGray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid Background="LightGray">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <TextBlock Text="Настройки" 
@@ -14,10 +79,14 @@
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0"/>
                 <Slider x:Name="VolumeSlider" 
+                        Style="{StaticResource CustomSliderStyle}"
                         Width="200" 
                         Minimum="0" 
                         Maximum="100" 
-                        ValueChanged="VolumeSlider_ValueChanged"/>
+                        ValueChanged="VolumeSlider_ValueChanged"
+                        IsMoveToPointEnabled="False"
+                        SmallChange="1"
+                        LargeChange="10"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
