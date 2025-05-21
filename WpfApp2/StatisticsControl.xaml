@@ -54,11 +54,21 @@
                            VerticalAlignment="Center"/>
             </StackPanel>
 
+            <Button Content="Сбросить статистику" 
+                    Click="ResetStatistics_Click" 
+                    Width="200" 
+                    Height="40" 
+                    Margin="0,10,0,10"/>
+            <Button Content="Создать отчёт" 
+                    Click="GenerateReport_Click" 
+                    Width="200" 
+                    Height="40" 
+                    Margin="0,10,0,10"/>
             <Button Content="Вернуться в меню" 
                     Click="ReturnToMenu_Click" 
                     Width="200" 
                     Height="40" 
-                    Margin="0,20,0,0"/>
+                    Margin="0,10,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -102,7 +102,12 @@ namespace WpfApp2
             }
         }
 
-        private static List<UserModel> LoadUsers()
+        public static List<UserModel> GetAllUsers()
+        {
+            return LoadUsers();
+        }
+
+        public static List<UserModel> LoadUsers()
         {
             try
             {
