@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,11 +54,8 @@ namespace WpfApp2
 
             UpdateGameGrid();
 
-            GlobalMusicManager.PlayMusic(
-                "..\\..\\..\\music\\game.mp3",
-                true,
-                (float)SettingsControl.MusicVolume
-            );
+            string musicPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "music", "game.mp3");
+            GlobalMusicManager.PlayMusic(musicPath, true, (float)SettingsControl.MusicVolume);
         }
 
         private void InitializeGrid()
@@ -76,7 +74,7 @@ namespace WpfApp2
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    double buttonSize = 380.0 / gridSize - 10; // 380 - размер поля, 10 - отступы
+                    double buttonSize = 380.0 / gridSize - 10; // 380 - размер поля, 10 отступы
                     Button button = new Button
                     {
                         Style = (Style)FindResource("emp"),
@@ -466,13 +464,12 @@ namespace WpfApp2
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
         {
             GlobalMusicManager.Stop();
-            if (!isGameOver)
+            if (!isGameOver && UserManager.CurrentUser == null)
             {
                 var stats = StatisticsModel.LoadStatistics();
                 if (stats.GamesPlayed > 0 || stats.HighScore > 0)
                 {
-                    SaveStatsPromptControl prompt = new SaveStatsPromptControl();
-                    ((MainWindow)Application.Current.MainWindow).MainContent.Content = prompt;
+                    ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SaveStatsPromptControl();
                     return;
                 }
             }

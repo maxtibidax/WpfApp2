@@ -2,72 +2,74 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="570" Width="440">
-    <Grid Background="LightGray">
+    <Grid Background="White">
+        <Rectangle HorizontalAlignment="Center" VerticalAlignment="Top" Height="60" Width="300" Margin="0,50,0,0" RadiusX="10" RadiusY="10" Fill="#FFBCADA0"/>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <TextBlock Text="Статистика" 
                        FontSize="24" 
                        FontWeight="Bold"
+                       Foreground="#E5FFFFFF"
                        HorizontalAlignment="Center" 
-                       Margin="0,0,0,20"/>
-
+                       Margin="0,-79,0,20" RenderTransformOrigin="0.494,-0.784"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Сыграно игр:" 
                            FontWeight="Bold"
+                           Foreground="#FF787168"
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0" 
                            Width="150"/>
                 <TextBlock x:Name="GamesPlayedTextBlock" 
                            Text="0" 
+                           Foreground="#FF787168"
                            VerticalAlignment="Center"/>
             </StackPanel>
-
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Лучший счёт:" 
                            FontWeight="Bold"
+                           Foreground="#FF787168"
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0" 
                            Width="150"/>
                 <TextBlock x:Name="HighScoreTextBlock" 
                            Text="0" 
+                           Foreground="#FF787168"
                            VerticalAlignment="Center"/>
             </StackPanel>
-
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Общее кол-во ходов:" 
                            FontWeight="Bold"
+                           Foreground="#FF787168"
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0" 
                            Width="150"/>
                 <TextBlock x:Name="TotalMovesTextBlock" 
                            Text="0" 
+                           Foreground="#FF787168"
                            VerticalAlignment="Center"/>
             </StackPanel>
-
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBlock Text="Средний счёт:" 
                            FontWeight="Bold"
+                           Foreground="#FF787168"
                            VerticalAlignment="Center" 
                            Margin="0,0,10,0" 
                            Width="150"/>
                 <TextBlock x:Name="AverageScoreTextBlock" 
                            Text="0" 
+                           Foreground="#FF787168"
                            VerticalAlignment="Center"/>
             </StackPanel>
-
             <Button Content="Сбросить статистику" 
                     Click="ResetStatistics_Click" 
-                    Width="200" 
-                    Height="40" 
-                    Margin="0,10,0,10"/>
+                    Style="{StaticResource MenuButtonStyle}"
+                    Margin="0,10,0,10" Width="184"/>
             <Button Content="Создать отчёт" 
                     Click="GenerateReport_Click" 
-                    Width="200" 
-                    Height="40" 
+                    Style="{StaticResource MenuButtonStyle}"
                     Margin="0,10,0,10"/>
             <Button Content="Вернуться в меню" 
                     Click="ReturnToMenu_Click" 
-                    Width="200" 
-                    Height="40" 
+                    Style="{StaticResource MenuButtonStyle}"
                     Margin="0,10,0,0"/>
         </StackPanel>
     </Grid>

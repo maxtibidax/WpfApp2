@@ -2,40 +2,53 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Height="570" Width="440">
-    <Grid Background="LightGray">
+    <Grid Background="White">
+        <Rectangle HorizontalAlignment="Center" VerticalAlignment="Top" Height="60" Width="300" Margin="0,50,0,0" RadiusX="10" RadiusY="10" Fill="#FFBCADA0"/>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <TextBlock Text="Вход / Регистрация" 
                        FontSize="24" 
                        FontWeight="Bold"
+                       Foreground="#E5FFFFFF"
                        HorizontalAlignment="Center" 
-                       Margin="0,0,0,20"/>
+                       Margin="0,-111,0,20"/>
             <TextBlock Text="Имя пользователя:" 
                        FontWeight="Bold"
+                       Foreground="#FF787168"
                        Margin="0,0,0,5"/>
             <TextBox x:Name="UsernameTextBox" 
                      Width="200" 
                      Height="30" 
-                     Margin="0,0,0,10"/>
+                     Margin="0,0,0,10"
+                     Background="#FFECE0C8"
+                     Foreground="#FF787168"
+                     BorderBrush="#FFBCADA0"/>
             <TextBlock Text="Пароль:" 
                        FontWeight="Bold"
+                       Foreground="#FF787168"
                        Margin="0,0,0,5"/>
             <PasswordBox x:Name="PasswordBox" 
                          Width="200" 
                          Height="30" 
-                         Margin="0,0,0,20"/>
+                         Margin="0,0,0,20"
+                         Background="#FFECE0C8"
+                         Foreground="#FF787168"
+                         BorderBrush="#FFBCADA0"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Войти" 
                         Click="Login_Click" 
+                        Style="{StaticResource MenuButtonStyle}"
                         Width="100" 
                         Height="40" 
                         Margin="0,0,10,0"/>
                 <Button Content="Регистрация" 
                         Click="Register_Click" 
+                        Style="{StaticResource MenuButtonStyle}"
                         Width="100" 
                         Height="40"/>
             </StackPanel>
             <Button Content="Назад" 
                     Click="Back_Click" 
+                    Style="{StaticResource MenuButtonStyle}"
                     Width="200" 
                     Height="40" 
                     Margin="0,10,0,0"/>

@@ -16,34 +16,39 @@ namespace WpfApp2
 
         private static string GetSaveFilePath()
         {
+            string basePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "2048Game"
+            );
             if (UserManager.CurrentUser == null)
             {
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "2048Game",
-                    "gamesave_guest.json"
-                );
+                return Path.Combine(basePath, "gamesave_guest.json");
             }
-            return UserManager.CurrentUser.GameSaveFilePath;
+            return UserManager.CurrentUser.GameSaveFilePath ?? Path.Combine(basePath, $"gamesave_{UserManager.CurrentUser.Username}.json");
         }
 
         private static string GetHighScoreFilePath()
         {
+            string basePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "2048Game"
+            );
             if (UserManager.CurrentUser == null)
             {
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "2048Game",
-                    "highscore_guest.json"
-                );
+                return Path.Combine(basePath, "highscore_guest.json");
             }
-            return UserManager.CurrentUser.HighScoreFilePath;
+            return UserManager.CurrentUser.HighScoreFilePath ?? Path.Combine(basePath, $"highscore_{UserManager.CurrentUser.Username}.json");
         }
 
         public static void SaveGame(GameStateModel state)
         {
             try
             {
+                if (state == null)
+                {
+                    throw new ArgumentNullException(nameof(state), "Состояние игры не может быть null.");
+                }
+
                 if (UserManager.CurrentUser == null)
                 {
                     GuestGameState = state;
@@ -51,7 +56,7 @@ namespace WpfApp2
                 }
 
                 string saveFilePath = GetSaveFilePath();
-                Directory.CreateDirectory(Path.GetDirectoryName(saveFilePath));
+                Directory.CreateDirectory(Path.GetDirectoryName(saveFilePath) ?? throw new InvalidOperationException("Не удалось определить директорию для сохранения."));
 
                 int currentHighScore = LoadHighScore();
                 state.HighScore = Math.Max(currentHighScore, state.Score);
@@ -62,7 +67,7 @@ namespace WpfApp2
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка сохранения: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -80,13 +85,16 @@ namespace WpfApp2
                 {
                     string json = File.ReadAllText(saveFilePath);
                     var state = JsonConvert.DeserializeObject<GameStateModel>(json);
-                    state.HighScore = LoadHighScore();
-                    return state;
+                    if (state != null)
+                    {
+                        state.HighScore = LoadHighScore();
+                        return state;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка загрузки: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
             return null;
         }
@@ -109,7 +117,7 @@ namespace WpfApp2
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка удаления файла сохранения: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка удаления файла сохранения: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -118,12 +126,12 @@ namespace WpfApp2
             try
             {
                 string highScoreFilePath = GetHighScoreFilePath();
-                Directory.CreateDirectory(Path.GetDirectoryName(highScoreFilePath));
+                Directory.CreateDirectory(Path.GetDirectoryName(highScoreFilePath) ?? throw new InvalidOperationException("Не удалось определить директорию для сохранения рекорда."));
                 File.WriteAllText(highScoreFilePath, highScore.ToString());
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка сохранения рекорда: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка сохранения рекорда: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -134,12 +142,16 @@ namespace WpfApp2
                 string highScoreFilePath = GetHighScoreFilePath();
                 if (File.Exists(highScoreFilePath))
                 {
-                    return int.Parse(File.ReadAllText(highScoreFilePath));
+                    string content = File.ReadAllText(highScoreFilePath);
+                    if (int.TryParse(content, out int highScore))
+                    {
+                        return highScore;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Ошибка загрузки рекорда: {ex.Message}");
+                System.Windows.MessageBox.Show($"Ошибка загрузки рекорда: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
             return 0;
         }
