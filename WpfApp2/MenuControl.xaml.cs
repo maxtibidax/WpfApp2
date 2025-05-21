@@ -14,7 +14,7 @@ namespace WpfApp2
             GlobalMusicManager.PlayMusic(
                 "..\\..\\..\\music\\menu.mp3",
                 true,
-                (float)SettingsControl.MusicVolume // Приведение double к float
+                (float)SettingsControl.MusicVolume
             );
         }
 
@@ -40,17 +40,17 @@ namespace WpfApp2
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            var stats = StatisticsModel.LoadStatistics();
-            if (UserManager.CurrentUser == null && (stats.GamesPlayed > 0 || stats.HighScore > 0))
+            if (UserManager.CurrentUser == null)
             {
-                ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SaveStatsPromptControl();
+                var stats = StatisticsModel.LoadStatistics();
+                if (stats.GamesPlayed > 0 || stats.HighScore > 0)
+                {
+                    ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SaveStatsPromptControl();
+                    return;
+                }
             }
-            else
-            {
-                StatisticsModel.ClearGuestStats();
-                GlobalMusicManager.Stop();
-                Application.Current.Shutdown();
-            }
+            GlobalMusicManager.Stop();
+            Application.Current.Shutdown();
         }
     }
 }

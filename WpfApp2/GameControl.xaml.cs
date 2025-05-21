@@ -466,13 +466,12 @@ namespace WpfApp2
         private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
         {
             GlobalMusicManager.Stop();
-            if (!isGameOver)
+            if (!isGameOver && UserManager.CurrentUser == null)
             {
                 var stats = StatisticsModel.LoadStatistics();
                 if (stats.GamesPlayed > 0 || stats.HighScore > 0)
                 {
-                    SaveStatsPromptControl prompt = new SaveStatsPromptControl();
-                    ((MainWindow)Application.Current.MainWindow).MainContent.Content = prompt;
+                    ((MainWindow)Application.Current.MainWindow).MainContent.Content = new SaveStatsPromptControl();
                     return;
                 }
             }
