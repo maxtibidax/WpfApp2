@@ -76,7 +76,7 @@ namespace WpfApp2
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    double buttonSize = 380.0 / gridSize - 10; // 380 - размер поля, 10 - отступы
+                    double buttonSize = 380.0 / gridSize - 10; // 380 - размер поля, 10 отступы
                     Button button = new Button
                     {
                         Style = (Style)FindResource("emp"),
