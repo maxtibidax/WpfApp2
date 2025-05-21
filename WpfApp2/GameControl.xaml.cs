@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,11 +54,8 @@ namespace WpfApp2
 
             UpdateGameGrid();
 
-            GlobalMusicManager.PlayMusic(
-                "..\\..\\..\\music\\game.mp3",
-                true,
-                (float)SettingsControl.MusicVolume
-            );
+            string musicPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "music", "game.mp3");
+            GlobalMusicManager.PlayMusic(musicPath, true, (float)SettingsControl.MusicVolume);
         }
 
         private void InitializeGrid()

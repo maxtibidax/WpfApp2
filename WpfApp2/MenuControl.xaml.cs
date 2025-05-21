@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.IO;
 using System.Windows.Controls;
 
 namespace WpfApp2
@@ -11,11 +12,8 @@ namespace WpfApp2
             ContinueButton.IsEnabled = GameStateModel.LoadGame() != null;
             UserTextBlock.Text = UserManager.CurrentUser?.Username ?? "Гость";
             GlobalMusicManager.Stop();
-            GlobalMusicManager.PlayMusic(
-                "..\\..\\..\\music\\menu.mp3",
-                true,
-                (float)SettingsControl.MusicVolume
-            );
+            string musicPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "music", "menu.mp3");
+            GlobalMusicManager.PlayMusic(musicPath, true, (float)SettingsControl.MusicVolume);
         }
 
         private void StartGame_Click(object sender, RoutedEventArgs e)
